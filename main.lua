@@ -38,7 +38,9 @@ local obj = MyStruct(my_lua_func)
 print(obj, obj.callback)
 
 for c=1,2 do
-   lib.call_func_ptr(obj, 123)
+   print("")
+   lib.call_func_ptr(obj, c)
+   print("")
 end
 
 print("done")
