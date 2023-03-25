@@ -1,7 +1,17 @@
-lib: mylib.c
-	gcc -shared -fPIC -fsanitize=address -Wall -o libmylib.so mylib.c
+CC=clang
+CFLAGS=-c -fPIC -Wall
+LDFLAGS=-shared -L. -Wl,-soname,libmylib.so
+SOURCES=mylib.c
+OBJECTS=$(SOURCES:.c=.o)
+LIBRARY=libmylib.so
 
-all: lib
+all: $(SOURCES) $(LIBRARY)
+
+$(LIBRARY): $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+.c.o:
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f libmylib.so
+	rm -f $(OBJECTS) $(LIBRARY)
