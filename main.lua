@@ -10,35 +10,22 @@ ffi.cdef[[
    void call_func_ptr(struct MyStruct *my_struct, const int inp);
 ]]
 
-local lib = ffi.load("/home/lw6/scratch/mirror/test03/libmylib.so")
+local lib = ffi.load("./libmylib.so")
 
 local my_type = ffi.typeof("struct MyStruct")
-
-local cb
-local cb_anchors = {}
 
 local my_mt = {
    __new = function(self, lua_func)
       local obj = ffi.new(MyStruct)
       obj.callback = lua_func
-
-      -- anchor the callback in the hope to keep it alive
-      cb = obj.callback
-      table.insert(cb_anchors, obj.callback)
-
       return obj
    end,
 }
 
 MyStruct = ffi.metatype(my_type, my_mt)
 
-local kernel = function(inp)
-   return inp*10
-end
-
 local my_lua_func = function(inp)
    print("calling my_lua_func on", inp)
-   print("calling kernel", kernel(inp))
 end
 
 local obj = MyStruct(my_lua_func)
