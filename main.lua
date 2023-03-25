@@ -16,7 +16,6 @@ local my_lua_func = function(inp)
    print("calling my_lua_func on", inp)
 end
 
--- lua wrapper of c struct, which implicitly converts my_lua_func
 local my_type = ffi.typeof("struct MyStruct")
 local my_mt = {
    __new = function(self, lua_func)
@@ -29,15 +28,13 @@ MyStruct = ffi.metatype(my_type, my_mt)
 local obj = MyStruct(my_lua_func)
 print(obj, obj.callback)
 
--- isolated callback from cast
 local cb = ffi.cast("FuncPtr", my_lua_func)
 
 for c=1,3 do
    print("\n>>>>>>>>>>")
-   -- following fails if only obj or cb is created
-   lib.call_func_ptr(obj, c) -- OK if obj is created after cb
-   -- obj.callback(c) -- OK if obj is created after cb
-   -- cb(c) -- OK if cb is created after obj
+   lib.call_func_ptr(obj, c)
+   -- obj.callback(c)
+   -- cb(c)
    print("<<<<<<<<<<\n")
 end
 
