@@ -24,11 +24,18 @@ local my_mt = {
 
 MyStruct = ffi.metatype(my_type, my_mt)
 
+local kernel = function(inp)
+   return inp*10
+end
+
 local my_lua_func = function(inp)
    print("calling my_lua_func on", inp)
+   print("calling kernel", kernel(inp))
 end
 
 local obj = MyStruct(my_lua_func)
+
+print(obj, obj.callback)
 
 lib.call_func_ptr(obj, 123)
 
