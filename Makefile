@@ -1,37 +1,38 @@
-$(module load intel/2021.1.2)
+# $(shell module load intel/2021.1.2)
 
 CC = icc
-CFLAGS = -O0 -g -Wall
+CFLAGS = -O0 -g -Wall -fPIC
 
-LUAJIT_LIB = ${HOME}/gkylsoft/luajit/lib
-LUAJIT_INC = ${HOME}/gkylsoft/luajit/include/luajit-2.1
+LUAJIT_LIB = $(HOME)/gkylsoft/luajit/lib
+LUAJIT_INC = $(HOME)/gkylsoft/luajit/include/luajit-2.1
 
-GKYLZERO_LIB = ${HOME}/gkylsoft/gkylzero/lib
-GKYLZERO_INC = ${HOME}/gkylsoft/gkylzero/include
+GKYL_LIB = $(HOME)/gkylsoft/gkylzero/lib
 
 LIB_NAME = mylib
 LIB_SOURCES = mylib.c
 LIB_OBJECTS = $(LIB_SOURCES:.c=.o)
-LIB_CFLAGS = -fPIC
+LIB_TARGET = lib$(LIB_NAME).so
 
-MAIN_NAME = c_main
 MAIN_SOURCES = c_main.c
 MAIN_OBJECTS = $(MAIN_SOURCES:.c=.o)
-MAIN_LIBS = -L. -l$(LIB_NAME) -L$(LUAJIT_LIB) -lluajit-5.1 -L$(GKYLZERO_LIB) -lgkylzero
+MAIN_TARGET = c_main
+
+MAIN_LIBS = -Wl,-rpath,$(LUAJIT_LIB) -L$(LUAJIT_LIB) -lluajit-5.1
+MAIN_LIBS += -Wl,-rpath,$(GKYL_LIB) -L$(GKYL_LIB) -lgkylzero
 
 .PHONY: all clean
 
-all: lib$(LIB_NAME).so $(MAIN_NAME)
+all: $(LIB_TARGET) $(MAIN_TARGET)
 
-lib$(LIB_NAME).so: $(LIB_OBJECTS)
-	$(CC) -shared $(LIB_CFLAGS) $(CFLAGS) $(LIB_OBJECTS) -o lib$(LIB_NAME).so
+$(LIB_TARGET): $(LIB_OBJECTS)
+	$(CC) -shared -o $@ $^
 
-$(MAIN_NAME): $(MAIN_OBJECTS)
-	$(CC) $(CFLAGS) $(MAIN_OBJECTS) $(MAIN_LIBS) -o $(MAIN_NAME)
+$(MAIN_TARGET): $(MAIN_OBJECTS)
+	$(CC) -o $@ $^ $(MAIN_LIBS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(LIB_CFLAGS) -I$(LUAJIT_INC) -I$(GKYLZERO_INC) -c $< -o $@
+	$(CC) $(CFLAGS) -c -o $@ $< -I$(LUAJIT_INC)
 
 clean:
-	rm -f *.o *.so $(MAIN_NAME)
+	rm -f $(LIB_OBJECTS) $(LIB_TARGET) $(MAIN_OBJECTS) $(MAIN_TARGET)
 
