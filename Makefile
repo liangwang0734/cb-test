@@ -1,12 +1,11 @@
 # $(shell module load intel/2021.1.2)
 
 CC = icc
-CFLAGS = -O0 -g -Wall -fPIC
+CFLAGS = -O3 -g -Wall -fPIC
 
 LUAJIT_LIB = $(HOME)/gkylsoft/luajit/lib
 LUAJIT_INC = $(HOME)/gkylsoft/luajit/include/luajit-2.1
 
-GKYL_LIB = $(HOME)/gkylsoft/gkylzero/lib
 
 LIB_NAME = mylib
 LIB_SOURCES = mylib.c
@@ -18,7 +17,6 @@ MAIN_OBJECTS = $(MAIN_SOURCES:.c=.o)
 MAIN_TARGET = c_main
 
 MAIN_LIBS = -Wl,-rpath,$(LUAJIT_LIB) -L$(LUAJIT_LIB) -lluajit-5.1
-MAIN_LIBS += -Wl,-rpath,$(GKYL_LIB) -L$(GKYL_LIB) -lgkylzero
 
 .PHONY: all clean
 
